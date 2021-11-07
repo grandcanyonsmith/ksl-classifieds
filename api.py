@@ -1498,7 +1498,7 @@ def main():
                 total_cash.clear()
                 total_investment.clear()
                 total.clear()
-                time.sleep(60)
+                time.sleep(300)
 
                 
             # print(json.dumps(data[0]['currentBalance']))
