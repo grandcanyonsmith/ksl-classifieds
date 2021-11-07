@@ -1,3 +1,4 @@
+from webdriver_manager.chrome import ChromeDriverManager
 import atexit
 import configargparse
 from datetime import date, datetime, timedelta
@@ -282,6 +283,7 @@ def _create_web_driver_at_mint_com(headless=True, session_path=None, use_chromed
     """
     Handles starting a web driver at mint.com
     """
+    print("handle")
     chrome_options = ChromeOptions()
     if headless:
         chrome_options.add_argument('headless')
@@ -297,8 +299,7 @@ def _create_web_driver_at_mint_com(headless=True, session_path=None, use_chromed
     else:
         driver = Chrome(
             options=chrome_options,
-            executable_path=get_stable_chrome_driver(
-                chromedriver_download_path))
+            executable_path=ChromeDriverManager().install())
     driver.get("https://www.mint.com")
     driver.implicitly_wait(20)  # seconds
     return driver
