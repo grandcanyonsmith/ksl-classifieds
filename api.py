@@ -1431,8 +1431,8 @@ def main():
             raise ValueError('file extension must be either .csv or .json')
     else:
         if options.filename is None:
-            # print(json.dumps(data, indent=2))
-            print(json.dumps(data[0]['currentBalance']))
+            print(json.dumps(data, indent=2))
+            # print(json.dumps(data[0]['currentBalance']))
             
             
         elif options.filename.endswith('.json'):
