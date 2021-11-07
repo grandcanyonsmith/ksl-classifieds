@@ -1,3 +1,4 @@
+import time
 from webdriver_manager.chrome import ChromeDriverManager
 import atexit
 import configargparse
@@ -1432,7 +1433,12 @@ def main():
             raise ValueError('file extension must be either .csv or .json')
     else:
         if options.filename is None:
-            print(json.dumps(data, indent=2))
+             while True:
+                print("Fetching financial data...")
+                print(json.dumps(data, indent=2))
+                print("Sleeping...")
+                time.sleep(30)
+                
             # print(json.dumps(data[0]['currentBalance']))
             
             
