@@ -1,3 +1,6 @@
+from twilio.rest import Client
+import time
+from account_types import *
 import time
 from webdriver_manager.chrome import ChromeDriverManager
 import atexit
@@ -1433,11 +1436,70 @@ def main():
             raise ValueError('file extension must be either .csv or .json')
     else:
         if options.filename is None:
-             while True:
-                print("Fetching financial data...")
-                print(json.dumps(data, indent=2))
+            # print(json.dumps(data, indent=2))
+            
+            total_cash = []
+            total_investment = []
+            total = []
+            while True:
+                all_accounts = mint.get_accounts()
+                print("Fetching account data...")
+                class Finance:
+                                        # investment = Finance.get_investments()                    
+
+
+                    def __init__(self, name, value):
+                        self.name = name
+                        self.value = value
+                
+                    def get_cash():
+                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
+                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
+                        client = Client(account_sid, auth_token)
+                        for account in all_accounts:
+                            if account['name'] in cash_accounts:
+                                total_cash.append(float(account['value']))
+                        cash = "{:,}".format(sum(total_cash).__round__(2))
+                        total_cash_sum = {"cash": cash}
+                        total.append(total_cash_sum)
+
+                        message = client.messages.create(
+                            body="Cash = $" + cash,
+                            from_='+13852336341',
+                            to='+18016237631'
+                        )
+                        return cash
+
+                    def get_investments():
+                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
+                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
+                        client = Client(account_sid, auth_token)
+                        for account in all_accounts:
+                            if account['name'] in investment_accounts:
+                                total_investment.append(float(account['currentBalance']))
+                        investment =  "{:,}".format(sum(total_investment).__round__(2))
+                        total_investment_sum = {"investment": investment}
+                        total.append(total_investment_sum)
+                        message = client.messages.create(
+                            body="Investments = $" + investment,
+                            from_='+13852336341',
+                            to='+18016237631'
+                        )
+                        
+                        return investment
+
+
+                print(Finance.get_cash())
+                print(Finance.get_investments())
+                
+
                 print("Sleeping...")
-                time.sleep(30)
+                # all_accounts.clear()
+                total_cash.clear()
+                total_investment.clear()
+                total.clear()
+                time.sleep(60*10)
+
                 
             # print(json.dumps(data[0]['currentBalance']))
             
@@ -1464,3 +1526,22 @@ def main():
 # get_net_worth(email='canyonfsmith@gmail.com',password='Sterling7147!')
 main()
 # mint.get_net_worth()
+
+
+
+
+
+
+# from get_5_and_15_minute import no_input_get_one_five_and_15_minute_intervals
+# from datetime import datetime
+# import time
+# from tradingview_ta import TA_Handler, Interval, Exchange
+
+# from exchange_lookup import *
+# import json
+# from support_and_resistance import check_break_through_for_multiple_intervals
+# import os
+# from dotenv import load_dotenv
+
+
+
