@@ -1441,6 +1441,7 @@ def main():
             total_cash = []
             total_investment = []
             total = []
+            composite = []
             while True:
                 all_accounts = mint.get_accounts()
                 print("Fetching account data...")
@@ -1468,6 +1469,7 @@ def main():
                             from_='+13852336341',
                             to='+18016237631'
                         )
+                        composite.append(cash)
                         return cash
 
                     def get_investments():
@@ -1485,12 +1487,41 @@ def main():
                             from_='+13852336341',
                             to='+18016237631'
                         )
+                        composite.append(investment)
                         
                         return investment
+
+                    def get_bills():
+                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
+                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
+                        client = Client(account_sid, auth_token)
+                        bills = mint.get_bills()
+                        total_due = []
+                        # print(bills[0])
+                        for x in bills:
+                            try:
+                                print(x['providerRef']['providerName'],"= $",x['aggregationDueAmount'])
+                                total_due.append(float(x['aggregationDueAmount']))        
+                            except:
+                                print(x['providerRef']['providerName'],"=","No aggregationDueAmount")
+                        composite.append(sum(total_due).__round__(2))
+                        aggregate = sum(composite)
+                        total_bills = "Total Due: $ -" + str(sum(total_due).__round__(2))
+                        message = client.messages.create(
+                            body=total_bills + "Composite = $" + aggregate,
+                            from_='+13852336341',
+                            to='+18016237631'
+                        )
+                        
+                        
+                        # print(total_bills)
+                        return sum(total_due).__round__(2)
+                        
 
 
                 print(Finance.get_cash())
                 print(Finance.get_investments())
+                print(Finance.get_bills())
                 
 
                 print("Sleeping...")
@@ -1498,7 +1529,8 @@ def main():
                 total_cash.clear()
                 total_investment.clear()
                 total.clear()
-                time.sleep(300)
+                composite.clear()
+                time.sleep(3000)
 
                 
             # print(json.dumps(data[0]['currentBalance']))
