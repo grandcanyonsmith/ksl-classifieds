@@ -445,6 +445,7 @@ def _sign_in(email, password, driver, mfa_method='email', mfa_token='GYYHGRSCW6N
 
         # password only sometimes after mfa
         try:
+            print("Re-enter password")
             driver.find_element_by_id("ius-sign-in-mfa-password-collection-current-password").send_keys(password)
             driver.find_element_by_id("ius-sign-in-mfa-password-collection-continue-btn").submit()
         except (NoSuchElementException, ElementNotInteractableException):
@@ -454,7 +455,7 @@ def _sign_in(email, password, driver, mfa_method='email', mfa_token='GYYHGRSCW6N
             driver.implicitly_wait(20)  # seconds
 
 
-def get_web_driver(email, password, headless=True, mfa_method='soft-token', mfa_token=None,
+def get_web_driver(email, password, headless=True, mfa_method='SMS', mfa_token=None,
                    mfa_input_callback=None, intuit_account=None, wait_for_sync=True,
                    wait_for_sync_timeout=5 * 60,
                    session_path=None, imap_account=None, imap_password=None,
@@ -548,8 +549,8 @@ class Mint(object):
     driver = None
     status_message = None
 
-    def __init__(self, email='canyonfsmith@gmail.com', password='Sterling7147!', mfa_method='email', mfa_token=None,
-                 mfa_input_callback=None, intuit_account=None, headless=False, session_path=None,
+    def __init__(self, email='canyonfsmith@gmail.com', password='Sterling7147!', mfa_method='SMS', mfa_token=None,
+                 mfa_input_callback=None, intuit_account=None, headless=True, session_path=None,
                  imap_account=None, imap_password=None, imap_server=None,
                  imap_folder="INBOX", wait_for_sync=True, wait_for_sync_timeout=5 * 60,
                  use_chromedriver_on_path=False,
@@ -1358,7 +1359,7 @@ def main():
         use_chromedriver_on_path=options.use_chromedriver_on_path,
         chromedriver_download_path=options.chromedriver_download_path
     )
-    atexit.register(mint.close)  # Ensure everything is torn down.
+    # atexit.register(mint.close)  # Ensure everything is torn down.
 
     if options.imap_test:
         mfa_code = get_email_code(
