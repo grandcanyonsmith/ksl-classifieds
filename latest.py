@@ -57,7 +57,7 @@ mint = mintapi.Mint(
     imap_folder='INBOX',  # IMAP folder that receives MFA email
     wait_for_sync=False,  # do not wait for accounts to sync
     wait_for_sync_timeout=300,  # number of seconds to wait for sync
-	# use_chromedriver_on_path=False,  # True will use a system provided chromedriver binary that
+	use_chromedriver_on_path=True,  # True will use a system provided chromedriver binary that
 	                                 # is on the PATH (instead of downloading the latest version)
   )
 
