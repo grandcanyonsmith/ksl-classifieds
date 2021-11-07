@@ -147,7 +147,7 @@ import requests
 def start_driver():
     option = Options()
     # You can comment and uncomment the below 2 lines to get window or windowless mode of the google chrome.
-    option.add_argument('--headless')
+    # option.add_argument('--headless')
     # option.add_argument('--disable-gpu')
     # Chrome driver manager automatically downloads the latest driver required to run google chrome using selenium.
     return webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=option)
