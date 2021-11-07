@@ -20,12 +20,12 @@ import requests
 def start_driver():
     option = Options()
     # You can comment and uncomment the below 2 lines to get window or windowless mode of the google chrome.
-    option.add_argument('--headless')
+    # option.add_argument('--headless')
     # option.add_argument('--disable-gpu')
     # Chrome driver manager automatically downloads the latest driver required to run google chrome using selenium.
     return webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=option)
 
-start_driver()
+# start_driver()
 
 mint = mintapi.Mint(
     'canyonfsmith@gmail.com',  # Email used to log in to Mint
@@ -57,7 +57,7 @@ mint = mintapi.Mint(
     imap_folder='INBOX',  # IMAP folder that receives MFA email
     wait_for_sync=False,  # do not wait for accounts to sync
     wait_for_sync_timeout=300,  # number of seconds to wait for sync
-	use_chromedriver_on_path=False,  # True will use a system provided chromedriver binary that
+	# use_chromedriver_on_path=False,  # True will use a system provided chromedriver binary that
 	                                 # is on the PATH (instead of downloading the latest version)
   )
 
