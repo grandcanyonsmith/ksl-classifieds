@@ -1454,6 +1454,6 @@ def main():
 
 
 
-get_net_worth(email='canyonfsmith@gmail.com',password='Sterling7147!')
-# main()
+# get_net_worth(email='canyonfsmith@gmail.com',password='Sterling7147!')
+main()
 # mint.get_net_worth()
