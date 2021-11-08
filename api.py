@@ -1448,84 +1448,85 @@ def main():
             raise ValueError('file extension must be either .csv or .json')
     else:
         if options.filename is None:
-            total_cash = []
-            total_credit = []
-            total_investment = []
-            total = []
-            composite = []
-            total_cash_sum = []
-            account_total = []
-            
-            # while True:
-            # all_accounts = mint.get_accounts()
-            all_accounts = data
-            print("Fetching account data...")
-
-            class Finance():
-            
-                def __init__(self, yes):                
-                    self.yes = yes
-
-                def calculate(account_detail,name,account_type):
-                    for account in all_accounts:
-                        if account['name'] in account_detail:
-                            account_total.append(float(account[account_type]))
-                            composite.append(float(account[account_type]))
-
-                    acc_balance = "{:,}".format(sum(account_total).__round__(2))
-                    account_total.clear()
-                    total_sum = {name: acc_balance}
-                    print(total_sum)
-                    total.append(total_cash_sum)
-                    return acc_balance                    
-
-                def get_bills():
-                    bills = mint.get_bills()
-                    total_due = []
-                    for x in bills:
-                        try:
-                            total_due.append((float(x['aggregationDueAmount'])*-1))        
-                        except:
-                            pass
-                    composite.append(float(sum(total_due)).__round__(2))                        
-                    total_bills = str(sum(total_due).__round__(2))
-                    aggregate = "{:,}".format(sum(composite).__round__(2))                              
-                    return total_bills, aggregate
-
-                def send_text():
-                    account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
-                    auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
-                    client = Client(account_sid, auth_token)
-                    investment = Finance.calculate(investment_accounts, "cash",'currentBalance')
-                    cash = Finance.calculate(cash_accounts, "cash",'value')
-                    credit = Finance.calculate(credit_accounts, "credit", 'value')
-                    total_bills, aggregate = Finance.get_bills()
-                    
-
-                    message = client.messages.create(
-                        body=
-                        "Cash = $" + cash +
-                        "\nCredit Cards = $" + credit +
-                        "\nBills = $" + total_bills +
-                        "\nInvestments = $" + investment +
-                        "\nTotal = $" + aggregate,
-                        from_='+13852336341',
-                        to='+18016237631'
-                    )                        
-                    return aggregate
-
-            print("$",Finance.send_text())
-            print("Sleeping...")
-            total_cash.clear()
-            total_investment.clear()
-            total.clear()
-            composite.clear()
-            # time.sleep(600)
-
+            while True:
+                total_cash = []
+                total_credit = []
+                total_investment = []
+                total = []
+                composite = []
+                total_cash_sum = []
+                account_total = []
                 
-            # print(json.dumps(data[0]['currentBalance']))
+                # while True:
+                # all_accounts = mint.get_accounts()
+                all_accounts = data
+                print("Fetching account data...")
+
+                class Finance():
+                
+                    def __init__(self, yes):                
+                        self.yes = yes
+
+                    def calculate(account_detail,name,account_type):
+                        for account in all_accounts:
+                            if account['name'] in account_detail:
+                                account_total.append(float(account[account_type]))
+                                composite.append(float(account[account_type]))
+
+                        acc_balance = "{:,}".format(sum(account_total).__round__(2))
+                        account_total.clear()
+                        total_sum = {name: acc_balance}
+                        print(total_sum)
+                        total.append(total_cash_sum)
+                        return acc_balance                    
+
+                    def get_bills():
+                        bills = mint.get_bills()
+                        total_due = []
+                        for x in bills:
+                            try:
+                                total_due.append((float(x['aggregationDueAmount'])*-1))        
+                            except:
+                                pass
+                        composite.append(float(sum(total_due)).__round__(2))                        
+                        total_bills = str(sum(total_due).__round__(2))
+                        aggregate = "{:,}".format(sum(composite).__round__(2))                              
+                        return total_bills, aggregate
+
+                    def send_text():
+                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
+                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
+                        client = Client(account_sid, auth_token)
+                        investment = Finance.calculate(investment_accounts, "cash",'currentBalance')
+                        cash = Finance.calculate(cash_accounts, "cash",'value')
+                        credit = Finance.calculate(credit_accounts, "credit", 'value')
+                        total_bills, aggregate = Finance.get_bills()
+                        
+
+                        message = client.messages.create(
+                            body=
+                            "Cash = $" + cash +
+                            "\nCredit Cards = $" + credit +
+                            "\nBills = $" + total_bills +
+                            "\nInvestments = $" + investment +
+                            "\nTotal = $" + aggregate,
+                            from_='+13852336341',
+                            to='+18016237631'
+                        )                        
+                        return aggregate
+
+                print("$",Finance.send_text())
+                print("Sleeping...")
+                total_cash.clear()
+                total_investment.clear()
+                total.clear()
+                composite.clear()
+                time.sleep(5)
+
             
-            
+        # print(json.dumps(data[0]['currentBalance']))
+        
+        
         elif options.filename.endswith('.json'):
             with open(options.filename, 'w+') as f:
                 json.dump(data, f, indent=2)
@@ -1543,6 +1544,8 @@ def main():
             with open(options.filename, 'w+') as f:
                 f.write(attention_msg)
 
-while True:
-    main()
-    time.sleep(5)
+# while True:
+#     main()
+#     time.sleep(5)
+
+main()
