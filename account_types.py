@@ -1,13 +1,18 @@
+#List of my accounts and their types broken down into sub-categories
 cash_accounts = [
     'Food',
     'Rainy Day Fund',
     'Travel Funds',
     'MYSTYLE CHECKING',
     'Anytime Checking',
-    'Visa Account',
     'Young Savers',
-    'SAVINGS',
-    'REWARDS VISA PLATINUM']
+    'SAVINGS'
+]
+
+credit_accounts = [
+    'REWARDS VISA PLATINUM',
+    'Visa Account'    
+]
 
 investment_accounts = [
     'Individual Brokerage',

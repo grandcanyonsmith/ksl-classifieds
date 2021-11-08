@@ -1439,89 +1439,98 @@ def main():
             # print(json.dumps(data, indent=2))
             
             total_cash = []
+            total_credit = []
             total_investment = []
             total = []
             composite = []
+            total_cash_sum = []
+            account_total = []
+
+# class Midfielder(Player):
+
+#     def __init__(self, name, role):
+#         super().__init__(name, 'football')
+#         self.role = role
+
+#     def play(self):
+#         print("Player {} passes the ball to a striker".format(self.name))
+# midfielder1 = Midfielder('James Midfielder', 'midfielder')
+
+
             while True:
                 all_accounts = mint.get_accounts()
                 print("Fetching account data...")
-                class Finance:
-                                        # investment = Finance.get_investments()                    
-
-
-                    def __init__(self, name, value):
-                        self.name = name
-                        self.value = value
+                class Finance():
                 
-                    def get_cash():
-                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
-                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
-                        client = Client(account_sid, auth_token)
-                        for account in all_accounts:
-                            if account['name'] in cash_accounts:
-                                total_cash.append(float(account['value']))
-                        cash = "{:,}".format(sum(total_cash).__round__(2))
-                        total_cash_sum = {"cash": cash}
-                        total.append(total_cash_sum)
-
-                        message = client.messages.create(
-                            body="Cash = $" + cash,
-                            from_='+13852336341',
-                            to='+18016237631'
-                        )
-                        composite.append(cash)
-                        return cash
-
-                    def get_investments():
-                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
-                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
-                        client = Client(account_sid, auth_token)
-                        for account in all_accounts:
-                            if account['name'] in investment_accounts:
-                                total_investment.append(float(account['currentBalance']))
-                        investment =  "{:,}".format(sum(total_investment).__round__(2))
-                        total_investment_sum = {"investment": investment}
-                        total.append(total_investment_sum)
-                        message = client.messages.create(
-                            body="Investments = $" + investment,
-                            from_='+13852336341',
-                            to='+18016237631'
-                        )
-                        composite.append(investment)
+                    def __init__(self, yes):
                         
-                        return investment
+                        # super().__init__(name, account_detail, account_total)
+                        self.yes = yes
+
+
+                    def calculate(account_detail,name,account_type):
+                        for account in all_accounts:
+                            if account['name'] in account_detail:
+                                print("It works")
+                                print(account['name'],"=",account[account_type])
+                                account_total.append(float(account[account_type]))
+                                print(float(account[account_type]))
+                                composite.append(float(account[account_type]))
+                        # print(composite)
+                        # print(account_total)
+                        cash = "{:,}".format(sum(account_total).__round__(2))
+                        total_sum = {name: cash}
+                        total.append(total_cash_sum)
+                        
+                        # print(total_sum)
+                        return cash                    
+
 
                     def get_bills():
+                        bills = mint.get_bills()
+                        total_due = []
+                        for x in bills:
+                            try:
+                                total_due.append((float(x['aggregationDueAmount'])*-1))        
+                            except:
+                                pass
+                        composite.append(float(sum(total_due)).__round__(2))
+                        # print(composite)
+                        
+                        total_bills = str(sum(total_due).__round__(2))
+                        aggregate = "{:,}".format(sum(composite).__round__(2))
+                        # print("Total = $" + aggregate)
+                      
+                        return total_bills, aggregate
+
+                    def send_text():
                         account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
                         auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
                         client = Client(account_sid, auth_token)
-                        bills = mint.get_bills()
-                        total_due = []
-                        # print(bills[0])
-                        for x in bills:
-                            try:
-                                print(x['providerRef']['providerName'],"= $",x['aggregationDueAmount'])
-                                total_due.append(float(x['aggregationDueAmount']))        
-                            except:
-                                print(x['providerRef']['providerName'],"=","No aggregationDueAmount")
-                        composite.append(sum(total_due).__round__(2))
-                        aggregate = sum(composite)
-                        total_bills = "Total Due: $ -" + str(sum(total_due).__round__(2))
+                        investment = Finance.calculate(investment_accounts, "cash",'currentBalance')
+                        cash = Finance.calculate(cash_accounts, "cash",'value')
+                        credit = Finance.calculate(credit_accounts, "credit", 'value')
+                        total_bills, aggregate = Finance.get_bills()
+                        
+
                         message = client.messages.create(
-                            body=total_bills + "Composite = $" + aggregate,
+                            body=
+                            "Cash = $" + cash +
+                            "\nCredit Cards = $" + credit +
+                            "\nBills = $" + total_bills +
+                            "\nInvestments = $" + investment +
+                            "\nTotal = $" + aggregate,
                             from_='+13852336341',
                             to='+18016237631'
                         )
+
                         
-                        
-                        # print(total_bills)
-                        return sum(total_due).__round__(2)
-                        
+                        return aggregate
 
 
-                print(Finance.get_cash())
-                print(Finance.get_investments())
-                print(Finance.get_bills())
+                print(Finance.send_text())
+ 
+                
                 
 
                 print("Sleeping...")
@@ -1530,7 +1539,7 @@ def main():
                 total_investment.clear()
                 total.clear()
                 composite.clear()
-                time.sleep(3000)
+                time.sleep(600)
 
                 
             # print(json.dumps(data[0]['currentBalance']))
@@ -1554,26 +1563,4 @@ def main():
                 f.write(attention_msg)
 
 
-
-# get_net_worth(email='canyonfsmith@gmail.com',password='Sterling7147!')
 main()
-# mint.get_net_worth()
-
-
-
-
-
-
-# from get_5_and_15_minute import no_input_get_one_five_and_15_minute_intervals
-# from datetime import datetime
-# import time
-# from tradingview_ta import TA_Handler, Interval, Exchange
-
-# from exchange_lookup import *
-# import json
-# from support_and_resistance import check_break_through_for_multiple_intervals
-# import os
-# from dotenv import load_dotenv
-
-
-
