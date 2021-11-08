@@ -1,1 +1,1 @@
-worker: python3 api.py
+worker: python3 api.py --headless
