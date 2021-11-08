@@ -1436,8 +1436,6 @@ def main():
             raise ValueError('file extension must be either .csv or .json')
     else:
         if options.filename is None:
-            # print(json.dumps(data, indent=2))
-            
             total_cash = []
             total_credit = []
             total_investment = []
@@ -1446,45 +1444,27 @@ def main():
             total_cash_sum = []
             account_total = []
 
-# class Midfielder(Player):
-
-#     def __init__(self, name, role):
-#         super().__init__(name, 'football')
-#         self.role = role
-
-#     def play(self):
-#         print("Player {} passes the ball to a striker".format(self.name))
-# midfielder1 = Midfielder('James Midfielder', 'midfielder')
-
-
             while True:
                 all_accounts = mint.get_accounts()
                 print("Fetching account data...")
+
                 class Finance():
                 
-                    def __init__(self, yes):
-                        
-                        # super().__init__(name, account_detail, account_total)
+                    def __init__(self, yes):                
                         self.yes = yes
-
 
                     def calculate(account_detail,name,account_type):
                         for account in all_accounts:
                             if account['name'] in account_detail:
-                                print("It works")
-                                print(account['name'],"=",account[account_type])
                                 account_total.append(float(account[account_type]))
-                                print(float(account[account_type]))
                                 composite.append(float(account[account_type]))
-                        # print(composite)
-                        # print(account_total)
-                        cash = "{:,}".format(sum(account_total).__round__(2))
-                        account_total.clear()
-                        total_sum = {name: cash}
-                        total.append(total_cash_sum)
-                        
-                        return cash                    
 
+                        acc_balance = "{:,}".format(sum(account_total).__round__(2))
+                        account_total.clear()
+                        total_sum = {name: acc_balance}
+                        print(total_sum)
+                        total.append(total_cash_sum)
+                        return acc_balance                    
 
                     def get_bills():
                         bills = mint.get_bills()
@@ -1494,13 +1474,9 @@ def main():
                                 total_due.append((float(x['aggregationDueAmount'])*-1))        
                             except:
                                 pass
-                        composite.append(float(sum(total_due)).__round__(2))
-                        # print(composite)
-                        
+                        composite.append(float(sum(total_due)).__round__(2))                        
                         total_bills = str(sum(total_due).__round__(2))
-                        aggregate = "{:,}".format(sum(composite).__round__(2))
-                        # print("Total = $" + aggregate)
-                      
+                        aggregate = "{:,}".format(sum(composite).__round__(2))                              
                         return total_bills, aggregate
 
                     def send_text():
@@ -1522,19 +1498,13 @@ def main():
                             "\nTotal = $" + aggregate,
                             from_='+13852336341',
                             to='+18016237631'
-                        )
-
-                        
+                        )                        
                         return aggregate
 
 
-                print(Finance.send_text())
- 
-                
-                
-
+                print("$",Finance.send_text())
                 print("Sleeping...")
-                # all_accounts.clear()
+
                 total_cash.clear()
                 total_investment.clear()
                 total.clear()
