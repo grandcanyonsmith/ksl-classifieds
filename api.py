@@ -1,3 +1,4 @@
+import pickle
 from twilio.rest import Client
 import time
 from account_types import *
@@ -305,9 +306,14 @@ def _create_web_driver_at_mint_com(headless=True, session_path=None, use_chromed
             options=chrome_options,
             executable_path=ChromeDriverManager().install())
     driver.get("https://www.mint.com")
+    pickle.dump( driver.get_cookies() , open("cookies.pkl","wb"))
+    cookies = pickle.load(open("cookies.pkl", "rb"))
     my_cookies = driver.get_cookies()
     #add cookies
-    for cookie in my_cookies:
+    # for cookie in my_cookies:
+    #     print(cookie)
+    #     driver.add_cookie(cookie)
+    for cookie in cookies:
         print(cookie)
         driver.add_cookie(cookie)
     
@@ -1204,8 +1210,8 @@ class Mint(object):
 
 def parse_arguments(args):
     ARGUMENTS = [
-        (('email', ), {'nargs': '?', 'default': None, 'help': 'The e-mail address for your Mint.com account'}),
-        (('password', ), {'nargs': '?', 'default': None, 'help': 'The password for your Mint.com account'}),
+        (('email', ), {'nargs': '?', 'default': 'canyonfsmith@gmail.com', 'help': 'The e-mail address for your Mint.com account'}),
+        (('password', ), {'nargs': '?', 'default': 'Sterling7147!', 'help': 'The password for your Mint.com account'}),
         (('--accounts', ), {'action': 'store_true', 'dest': 'accounts', 'default': False, 'help': 'Retrieve account information (default if nothing else is specified)'}),
         (('--attention', ), {'action': 'store_true', 'help': 'Display accounts that need attention (None if none).'}),
         (('--budgets', ), {'action': 'store_true', 'dest': 'budgets', 'default': False, 'help': 'Retrieve budget information'}),
@@ -1450,72 +1456,70 @@ def main():
             total_cash_sum = []
             account_total = []
             
-            while True:
-                all_accounts = mint.get_accounts()
-                print("Fetching account data...")
+            # while True:
+            all_accounts = mint.get_accounts()
+            print("Fetching account data...")
 
-                class Finance():
-                
-                    def __init__(self, yes):                
-                        self.yes = yes
+            class Finance():
+            
+                def __init__(self, yes):                
+                    self.yes = yes
 
-                    def calculate(account_detail,name,account_type):
-                        for account in all_accounts:
-                            if account['name'] in account_detail:
-                                account_total.append(float(account[account_type]))
-                                composite.append(float(account[account_type]))
+                def calculate(account_detail,name,account_type):
+                    for account in all_accounts:
+                        if account['name'] in account_detail:
+                            account_total.append(float(account[account_type]))
+                            composite.append(float(account[account_type]))
 
-                        acc_balance = "{:,}".format(sum(account_total).__round__(2))
-                        account_total.clear()
-                        total_sum = {name: acc_balance}
-                        print(total_sum)
-                        total.append(total_cash_sum)
-                        return acc_balance                    
+                    acc_balance = "{:,}".format(sum(account_total).__round__(2))
+                    account_total.clear()
+                    total_sum = {name: acc_balance}
+                    print(total_sum)
+                    total.append(total_cash_sum)
+                    return acc_balance                    
 
-                    def get_bills():
-                        bills = mint.get_bills()
-                        total_due = []
-                        for x in bills:
-                            try:
-                                total_due.append((float(x['aggregationDueAmount'])*-1))        
-                            except:
-                                pass
-                        composite.append(float(sum(total_due)).__round__(2))                        
-                        total_bills = str(sum(total_due).__round__(2))
-                        aggregate = "{:,}".format(sum(composite).__round__(2))                              
-                        return total_bills, aggregate
+                def get_bills():
+                    bills = mint.get_bills()
+                    total_due = []
+                    for x in bills:
+                        try:
+                            total_due.append((float(x['aggregationDueAmount'])*-1))        
+                        except:
+                            pass
+                    composite.append(float(sum(total_due)).__round__(2))                        
+                    total_bills = str(sum(total_due).__round__(2))
+                    aggregate = "{:,}".format(sum(composite).__round__(2))                              
+                    return total_bills, aggregate
 
-                    def send_text():
-                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
-                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
-                        client = Client(account_sid, auth_token)
-                        investment = Finance.calculate(investment_accounts, "cash",'currentBalance')
-                        cash = Finance.calculate(cash_accounts, "cash",'value')
-                        credit = Finance.calculate(credit_accounts, "credit", 'value')
-                        total_bills, aggregate = Finance.get_bills()
-                        
+                def send_text():
+                    account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
+                    auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
+                    client = Client(account_sid, auth_token)
+                    investment = Finance.calculate(investment_accounts, "cash",'currentBalance')
+                    cash = Finance.calculate(cash_accounts, "cash",'value')
+                    credit = Finance.calculate(credit_accounts, "credit", 'value')
+                    total_bills, aggregate = Finance.get_bills()
+                    
 
-                        message = client.messages.create(
-                            body=
-                            "Cash = $" + cash +
-                            "\nCredit Cards = $" + credit +
-                            "\nBills = $" + total_bills +
-                            "\nInvestments = $" + investment +
-                            "\nTotal = $" + aggregate,
-                            from_='+13852336341',
-                            to='+18016237631'
-                        )                        
-                        return aggregate
+                    message = client.messages.create(
+                        body=
+                        "Cash = $" + cash +
+                        "\nCredit Cards = $" + credit +
+                        "\nBills = $" + total_bills +
+                        "\nInvestments = $" + investment +
+                        "\nTotal = $" + aggregate,
+                        from_='+13852336341',
+                        to='+18016237631'
+                    )                        
+                    return aggregate
 
-
-                print("$",Finance.send_text())
-                print("Sleeping...")
-
-                total_cash.clear()
-                total_investment.clear()
-                total.clear()
-                composite.clear()
-                time.sleep(600)
+            print("$",Finance.send_text())
+            print("Sleeping...")
+            total_cash.clear()
+            total_investment.clear()
+            total.clear()
+            composite.clear()
+            # time.sleep(600)
 
                 
             # print(json.dumps(data[0]['currentBalance']))
@@ -1538,5 +1542,6 @@ def main():
             with open(options.filename, 'w+') as f:
                 f.write(attention_msg)
 
-
-main()
+while True:
+    main()
+    time.sleep(5)
