@@ -1,4 +1,4 @@
-import pickle
+# import pickle
 from twilio.rest import Client
 import time
 from account_types import *
@@ -1232,7 +1232,7 @@ def parse_arguments(args):
         (('--imap-test', ), {'action': 'store_true', 'help': 'Test imap login and retrieval.'}),
         (('--include-investment', ), {'action': 'store_true', 'default': False, 'help': 'Used with --extended-transactions'}),
         (('--keyring', ), {'action': 'store_true', 'help': 'Use OS keyring for storing password information'}),
-        (('--mfa-method', ), {'choices': ['sms', 'email', 'soft-token'], 'default': 'sms', 'help': 'The MFA method to automate.'}),
+        (('--mfa-method', ), {'choices': ['sms', 'email', 'soft-token'], 'default': 'email', 'help': 'The MFA method to automate.'}),
         (('--mfa-token', ), {'default': None, 'help': 'The MFA soft-token to pass to oathtool.'}),
         (('--net-worth', ), {'action': 'store_true', 'dest': 'net_worth', 'default': False, 'help': 'Retrieve net worth information'}),
         (('--no_wait_for_sync', ), {'action': 'store_true', 'default': False, 'help': 'By default, mint api will wait for accounts to sync with the backing financial institutions. If this flag is present, do not wait for them to sync.'}),
