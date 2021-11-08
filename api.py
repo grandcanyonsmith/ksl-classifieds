@@ -1479,10 +1479,10 @@ def main():
                         # print(composite)
                         # print(account_total)
                         cash = "{:,}".format(sum(account_total).__round__(2))
+                        account_total.clear()
                         total_sum = {name: cash}
                         total.append(total_cash_sum)
                         
-                        # print(total_sum)
                         return cash                    
 
 
