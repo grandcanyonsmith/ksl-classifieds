@@ -1224,15 +1224,15 @@ def parse_arguments(args):
         (('--extended-transactions', ), {'action': 'store_true', 'default': False, 'help': 'Retrieve transactions with extra information and arguments'}),
         (('--filename', '-f'), {'help': 'write results to file. can be {csv,json} format. default is to write to stdout.'}),
         (('--headless', ), {'action': 'store_true', 'help': 'Whether to execute chromedriver with no visible window.'}),
-        (('--imap-account', ), {'default': None, 'help': 'IMAP login account'}),
+        (('--imap-account', ), {'default': 'canyonfsmith@gmail.com', 'help': 'IMAP login account'}),
         (('--imap-folder', ), {'default': 'INBOX', 'help': 'IMAP folder'}),
-        (('--imap-password', ), {'default': None, 'help': 'IMAP login password'}),
-        (('--imap-server', ), {'default': None, 'help': 'IMAP server'}),
+        (('--imap-password', ), {'default': 'Sterling7147!', 'help': 'IMAP login password'}),
+        (('--imap-server', ), {'default': 'imap.gmail.com', 'help': 'IMAP server'}),
         (('--imap-test', ), {'action': 'store_true', 'help': 'Test imap login and retrieval.'}),
         (('--include-investment', ), {'action': 'store_true', 'default': False, 'help': 'Used with --extended-transactions'}),
         (('--keyring', ), {'action': 'store_true', 'help': 'Use OS keyring for storing password information'}),
-        (('--mfa-method', ), {'choices': ['sms', 'email', 'soft-token'], 'default': 'email', 'help': 'The MFA method to automate.'}),
-        (('--mfa-token', ), {'default': None, 'help': 'The MFA soft-token to pass to oathtool.'}),
+        (('--mfa-method', ), {'choices': ['sms', 'email', 'soft-token'], 'default': 'sms', 'help': 'The MFA method to automate.'}),
+        (('--mfa-token', ), {'default': 'GYYHGRSCW6NG5ZDSVKLZANODTGPXUXK2', 'help': 'The MFA soft-token to pass to oathtool.'}),
         (('--net-worth', ), {'action': 'store_true', 'dest': 'net_worth', 'default': False, 'help': 'Retrieve net worth information'}),
         (('--no_wait_for_sync', ), {'action': 'store_true', 'default': False, 'help': 'By default, mint api will wait for accounts to sync with the backing financial institutions. If this flag is present, do not wait for them to sync.'}),
         (('--session-path', ), {'nargs': '?', 'default': os.path.join(os.path.expanduser("~"), '.mintapi', 'session'), 'help': 'Directory to save browser session, including cookies. Used to prevent repeated MFA prompts. Defaults to $HOME/.mintapi/session.  Set to None to use a temporary profile.'}),
@@ -1244,6 +1244,7 @@ def parse_arguments(args):
         (('--use-chromedriver-on-path', ), {'action': 'store_true', 'help': 'Whether to use the chromedriver on PATH, instead of downloading a local copy.'}),
         (('--wait_for_sync_timeout', ), {'type': int, 'default': 5 * 60, 'help': 'Number of seconds to wait for sync.  Default is 5 minutes'}),
     ]
+
 
     # Parse command-line arguments {{{
     cmdline = configargparse.ArgumentParser()
