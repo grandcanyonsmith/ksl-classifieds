@@ -1521,7 +1521,7 @@ def main():
                 total_investment.clear()
                 total.clear()
                 composite.clear()
-                time.sleep(5)
+                time.sleep(300)
 
             
         # print(json.dumps(data[0]['currentBalance']))
