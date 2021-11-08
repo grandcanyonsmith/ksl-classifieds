@@ -305,6 +305,12 @@ def _create_web_driver_at_mint_com(headless=True, session_path=None, use_chromed
             options=chrome_options,
             executable_path=ChromeDriverManager().install())
     driver.get("https://www.mint.com")
+    my_cookies = driver.get_cookies()
+    #add cookies
+    for cookie in my_cookies:
+        print(cookie)
+        driver.add_cookie(cookie)
+    
     driver.implicitly_wait(20)  # seconds
     return driver
 
@@ -1443,7 +1449,7 @@ def main():
             composite = []
             total_cash_sum = []
             account_total = []
-
+            
             while True:
                 all_accounts = mint.get_accounts()
                 print("Fetching account data...")
