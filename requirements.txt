@@ -21,3 +21,4 @@ selenium-requests==1.3.3
 xmltodict==0.12.0
 # pickle
 twilio
+keyring

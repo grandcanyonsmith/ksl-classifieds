@@ -1457,7 +1457,8 @@ def main():
             account_total = []
             
             # while True:
-            all_accounts = mint.get_accounts()
+            # all_accounts = mint.get_accounts()
+            all_accounts = data
             print("Fetching account data...")
 
             class Finance():
