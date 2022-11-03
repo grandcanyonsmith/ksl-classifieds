@@ -75,10 +75,7 @@ def convert_mmddyy_to_datetime(date):
 
 
 def convert_date_to_string(date):
-    date_string = None
-    if date:
-        date_string = date.strftime('%m/%d/%Y')
-    return date_string
+    return date.strftime('%m/%d/%Y') if date else None
 
 
 def reverse_credit_amount(row):
@@ -103,7 +100,7 @@ def get_email_code(imap_account, imap_password, imap_server, imap_folder, debug=
         return ''
 
     code = ''
-    for c in range(20):
+    for _ in range(20):
         time.sleep(10)
         rv, data = imap_client.select(imap_folder)
         if rv != 'OK':
@@ -141,8 +138,7 @@ def get_email_code(imap_account, imap_password, imap_server, imap_folder, debug=
             if not re.search('Your Mint Account', subject, re.IGNORECASE):
                 continue
 
-            date_tuple = email.utils.parsedate_tz(msg['Date'])
-            if date_tuple:
+            if date_tuple := email.utils.parsedate_tz(msg['Date']):
                 local_date = datetime.fromtimestamp(email.utils.mktime_tz(date_tuple))
             else:
                 logger.error("ERROR: FAIL0")
@@ -158,10 +154,10 @@ def get_email_code(imap_account, imap_password, imap_server, imap_folder, debug=
 
             body = str(msg)
 
-            p = re.search(r'Verification code:<.*?(\d\d\d\d\d\d)$', body,
-                          re.S | re.M)
-            if p:
-                code = p.group(1)
+            if p := re.search(
+                r'Verification code:<.*?(\d\d\d\d\d\d)$', body, re.S | re.M
+            ):
+                code = p[1]
             else:
                 logger.error("FAIL1")
 
@@ -218,9 +214,7 @@ def get_chrome_driver_major_version_from_executable(local_executable_path):
             stderr=devnull,
             stdin=devnull)
         version_match = version_pattern.search(version.decode())
-        if not version_match:
-            return None
-        return version_match.groupdict()['major']
+        return version_match.groupdict()['major'] if version_match else None
 
 
 def get_latest_chrome_driver_version():
@@ -230,8 +224,9 @@ def get_latest_chrome_driver_version():
 
     if latest_request.status_code != 200:
         raise RuntimeError(
-            'Error finding the latest chromedriver at {}, status = {}'.format(
-                latest_url, latest_request.status_code))
+            f'Error finding the latest chromedriver at {latest_url}, status = {latest_request.status_code}'
+        )
+
     return latest_request.text
 
 
@@ -246,8 +241,10 @@ def get_stable_chrome_driver(download_directory=os.getcwd()):
     version_match = version_pattern.match(latest_chrome_driver_version)
     latest_major_version = None
     if not version_match:
-        logger.error("Cannot parse latest chrome driver string: {}".format(
-            latest_chrome_driver_version))
+        logger.error(
+            f"Cannot parse latest chrome driver string: {latest_chrome_driver_version}"
+        )
+
     else:
         latest_major_version = version_match.groupdict()['major']
     if os.path.exists(local_executable_path):
@@ -257,8 +254,7 @@ def get_stable_chrome_driver(download_directory=os.getcwd()):
             # Use the existing chrome driver, as it's already the latest
             # version or the latest version cannot be determined at the moment.
             return local_executable_path
-        logger.info('Removing old version {} of Chromedriver'.format(
-            major_version))
+        logger.info(f'Removing old version {major_version} of Chromedriver')
         os.remove(local_executable_path)
 
     if not latest_chrome_driver_version:
@@ -267,16 +263,19 @@ def get_stable_chrome_driver(download_directory=os.getcwd()):
             'driver on the internet. Please double check your internet '
             'connection, then ask for assistance on the github project.')
         return None
-    logger.info('Downloading version {} of Chromedriver'.format(
-        latest_chrome_driver_version))
+    logger.info(
+        f'Downloading version {latest_chrome_driver_version} of Chromedriver'
+    )
+
     zip_file_url = get_chrome_driver_url(
         latest_chrome_driver_version, _platform)
     request = requests.get(zip_file_url)
 
     if request.status_code != 200:
         raise RuntimeError(
-            'Error finding chromedriver at {}, status = {}'.format(
-                zip_file_url, request.status_code))
+            f'Error finding chromedriver at {zip_file_url}, status = {request.status_code}'
+        )
+
 
     zip_file = zipfile.ZipFile(io.BytesIO(request.content))
     zip_file.extractall(path=download_directory)
@@ -297,7 +296,7 @@ def _create_web_driver_at_mint_com(headless=True, session_path=None, use_chromed
         chrome_options.add_argument('disable-gpu')
         # chrome_options.add_argument("--window-size=1920x1080")
     if session_path is not None:
-        chrome_options.add_argument("user-data-dir=%s" % session_path)
+        chrome_options.add_argument(f"user-data-dir={session_path}")
 
     if use_chromedriver_on_path:
         driver = Chrome(options=chrome_options)
@@ -315,7 +314,7 @@ def _create_web_driver_at_mint_com(headless=True, session_path=None, use_chromed
     # for cookie in cookies:
     #     print(cookie)
     #     driver.add_cookie(cookie)
-    
+
     driver.implicitly_wait(20)  # seconds
     return driver
 
@@ -399,8 +398,7 @@ def _sign_in(email, password, driver, mfa_method='email', mfa_token='GYYHGRSCW6N
             else:
                 try:
                     driver.find_element_by_id('ius-mfa-options-form')
-                    mfa_method_option = driver.find_element_by_id(
-                        'ius-mfa-option-{}'.format(mfa_method))
+                    mfa_method_option = driver.find_element_by_id(f'ius-mfa-option-{mfa_method}')
                     mfa_method_option.click()
                     mfa_method_submit = driver.find_element_by_id(
                         "ius-mfa-options-submit-btn")
@@ -446,7 +444,9 @@ def _sign_in(email, password, driver, mfa_method='email', mfa_token='GYYHGRSCW6N
             select_account = driver.find_element_by_id("ius-mfa-select-account-section")
             if intuit_account is not None:
                 account_input = select_account.find_element_by_xpath(
-                    "//label/span[text()='{}']/../preceding-sibling::input".format(intuit_account))
+                    f"//label/span[text()='{intuit_account}']/../preceding-sibling::input"
+                )
+
                 account_input.click()
 
             try:
@@ -544,7 +544,7 @@ def convert_account_dates_to_datetime(account):
             except TypeError:
                 # returned data is not a number, don't parse
                 continue
-            account[df + 'InDate'] = datetime.fromtimestamp(ts)
+            account[f'{df}InDate'] = datetime.fromtimestamp(ts)
 
 
 MINT_ROOT_URL = 'https://mint.intuit.com'
@@ -598,11 +598,11 @@ class Mint(object):
 
     def _get_api_key_header(self):
         key_var = 'window.MintConfig.browserAuthAPIKey'
-        api_key = self.driver.execute_script('return ' + key_var)
-        auth = 'Intuit_APIKey intuit_apikey=' + api_key
+        api_key = self.driver.execute_script(f'return {key_var}')
+        auth = f'Intuit_APIKey intuit_apikey={api_key}'
         auth += ', intuit_apikey_version=1.0'
         header = {'authorization': auth}
-        header.update(JSON_HEADER)
+        header |= JSON_HEADER
         return header
 
     def close(self):
@@ -702,17 +702,17 @@ class Mint(object):
 
     def get_bills(self):
         return self.get(
-            '{}/bps/v2/payer/bills'.format(MINT_ROOT_URL),
-            headers=self._get_api_key_header()
+            f'{MINT_ROOT_URL}/bps/v2/payer/bills',
+            headers=self._get_api_key_header(),
         ).json()['bills']
 
     def get_invests_json(self):
-        body = self.get(
-            '{}/investment.event'.format(MINT_ROOT_URL),
-        ).text
-        p = re.search(r'<input name="json-import-node" type="hidden" value="json = ([^"]*);"', body)
-        if p:
-            return p.group(1).replace('&quot;', '"')
+        body = self.get(f'{MINT_ROOT_URL}/investment.event').text
+        if p := re.search(
+            r'<input name="json-import-node" type="hidden" value="json = ([^"]*);"',
+            body,
+        ):
+            return p[1].replace('&quot;', '"')
         else:
             logger.error("FAIL2")
 
@@ -741,16 +741,15 @@ class Mint(object):
         }
 
         data = {'input': json.dumps([input])}
-        account_data_url = (
-            '{}/bundledServiceController.xevent?legacy=false&token={}'.format(
-                MINT_ROOT_URL, self.token))
+        account_data_url = f'{MINT_ROOT_URL}/bundledServiceController.xevent?legacy=false&token={self.token}'
+
         response = self.post(
             account_data_url,
             data=data,
             headers=JSON_HEADER
         ).text
         if req_id not in response:
-            raise MintException('Could not parse account data: ' + response)
+            raise MintException(f'Could not parse account data: {response}')
 
         # Parse the request
         response = json.loads(response)
@@ -765,9 +764,8 @@ class Mint(object):
         return accounts
 
     def set_user_property(self, name, value):
-        url = (
-            '{}/bundledServiceController.xevent?legacy=false&token={}'.format(
-                MINT_ROOT_URL, self.token))
+        url = f'{MINT_ROOT_URL}/bundledServiceController.xevent?legacy=false&token={self.token}'
+
         req_id = self.get_request_id_str()
         result = self.post(
             url,
@@ -812,7 +810,7 @@ class Mint(object):
         # Mint only returns some of the transactions at once.  To get all of
         # them, we have to keep asking for more until we reach the end.
         while 1:
-            url = MINT_ROOT_URL + '/getJsonData.xevent'
+            url = f'{MINT_ROOT_URL}/getJsonData.xevent'
             params = {
                 'queryNew': '',
                 'offset': offset,
@@ -906,23 +904,27 @@ class Mint(object):
             'endDate': convert_date_to_string(convert_mmddyy_to_datetime(end_date)),
         }
         result = self.request_and_check(
-            '{}/transactionDownload.event'.format(MINT_ROOT_URL),
+            f'{MINT_ROOT_URL}/transactionDownload.event',
             params=params,
-            expected_content_type='text/csv')
+            expected_content_type='text/csv',
+        )
+
         return result.content
 
     def get_net_worth(self, account_data=None):
         if account_data is None:
             account_data = self.get_accounts()
-            
+
 
         # account types in this list will be subtracted
-        invert = set(['loan', 'loans', 'credit'])
-        return sum([
+        invert = {'loan', 'loans', 'credit'}
+        return sum(
             -a['currentBalance']
-            if a['accountType'] in invert else a['currentBalance']
-            for a in account_data if a['isActive']
-        ])
+            if a['accountType'] in invert
+            else a['currentBalance']
+            for a in account_data
+            if a['isActive']
+        )
 
     def get_transactions(self, include_investment=False, start_date=None, end_date=None):
         """Returns the transaction data as a Pandas DataFrame."""
@@ -944,10 +946,12 @@ class Mint(object):
         # and parsing the HTML snippet :(
         for account in accounts:
             headers = dict(JSON_HEADER)
-            headers['Referer'] = '{}/transaction.event?accountId={}'.format(
-                MINT_ROOT_URL, account['id'])
+            headers[
+                'Referer'
+            ] = f"{MINT_ROOT_URL}/transaction.event?accountId={account['id']}"
 
-            list_txn_url = '{}/listTransaction.xevent'.format(MINT_ROOT_URL)
+
+            list_txn_url = f'{MINT_ROOT_URL}/listTransaction.xevent'
             params = {
                 'accountId': str(account['id']),
                 'queryNew': '',
@@ -1017,22 +1021,15 @@ class Mint(object):
             }])
         }
 
-        cat_url = (
-            '{}/bundledServiceController.xevent?legacy=false&token={}'.format(
-                MINT_ROOT_URL, self.token))
+        cat_url = f'{MINT_ROOT_URL}/bundledServiceController.xevent?legacy=false&token={self.token}'
+
         response = self.post(cat_url, data=data, headers=JSON_HEADER).text
         if req_id not in response:
-            raise MintException(
-                'Could not parse category data: "{}"'.format(response))
+            raise MintException(f'Could not parse category data: "{response}"')
         response = json.loads(response)
         response = response['response'][req_id]['response']
 
-        # Build category list
-        categories = {}
-        for category in response['allCategories']:
-            categories[category['id']] = category
-
-        return categories
+        return {category['id']: category for category in response['allCategories']}
 
     def get_budgets(self, hist=None):  # {{{
         # Issue request for budget utilization
@@ -1074,7 +1071,7 @@ class Mint(object):
                     "spending"] = response["data"]["spending"][str(months)]['bu']
 
             # Fill in the return structure
-            for month in budgets.keys():
+            for month in budgets:
                 for direction in budgets[month]:
                     for budget in budgets[month][direction]:
                         category = self.get_category_object_from_id(budget['cat'])
@@ -1093,7 +1090,7 @@ class Mint(object):
             }
 
             # Fill in the return structure
-            for direction in budgets.keys():
+            for direction in budgets:
                 for budget in budgets[direction]:
                     category = self.get_category_object_from_id(budget['cat'])
                     budget['cat'] = category['name']
@@ -1131,9 +1128,10 @@ class Mint(object):
 
     def initiate_account_refresh(self):
         self.post(
-            '{}/refreshFILogins.xevent'.format(MINT_ROOT_URL),
+            f'{MINT_ROOT_URL}/refreshFILogins.xevent',
             data={'token': self.token},
-            headers=JSON_HEADER)
+            headers=JSON_HEADER,
+        )
 
     def get_credit_score(self):
         # Request a single credit report, and extract the score
@@ -1148,34 +1146,36 @@ class Mint(object):
         # Get the browser API key, build auth header
         credit_header = self._get_api_key_header()
 
-        # Get credit reports. The UI shows 2 by default, but more are available!
-        # At least 8, but could be all the TransUnion reports Mint has
-        # How the "bands" are defined, and other metadata, is available at a
-        # /v1/creditscoreproviders/3 endpoint (3 = TransUnion)
-        credit_report = dict()
         response = self.get(
-            '{}/v1/creditreports?limit={}'.format(MINT_CREDIT_URL, limit),
-            headers=credit_header)
-        credit_report['reports'] = response.json()
+            f'{MINT_CREDIT_URL}/v1/creditreports?limit={limit}',
+            headers=credit_header,
+        )
 
+        credit_report = {'reports': response.json()}
         # If we want details, request the detailed sub-reports
         if details:
             # Get full list of credit inquiries
             response = self.get(
-                '{}/v1/creditreports/0/inquiries'.format(MINT_CREDIT_URL),
-                headers=credit_header)
+                f'{MINT_CREDIT_URL}/v1/creditreports/0/inquiries',
+                headers=credit_header,
+            )
+
             credit_report['inquiries'] = response.json()
 
             # Get full list of credit accounts
             response = self.get(
-                '{}/v1/creditreports/0/tradelines'.format(MINT_CREDIT_URL),
-                headers=credit_header)
+                f'{MINT_CREDIT_URL}/v1/creditreports/0/tradelines',
+                headers=credit_header,
+            )
+
             credit_report['accounts'] = response.json()
 
             # Get credit utilization history (~3 months, by account)
             response = self.get(
-                '{}/v1/creditreports/creditutilizationhistory'.format(MINT_CREDIT_URL),
-                headers=credit_header)
+                f'{MINT_CREDIT_URL}/v1/creditreports/creditutilizationhistory',
+                headers=credit_header,
+            )
+
             clean_data = self.process_utilization(response.json())
             credit_report['utilization'] = clean_data
 
@@ -1355,11 +1355,7 @@ def main():
                 options.credit_report, options.attention]):
         options.accounts = True
 
-    if options.session_path == 'None':
-        session_path = None
-    else:
-        session_path = options.session_path
-
+    session_path = None if options.session_path == 'None' else options.session_path
     mint = Mint.create(
         email, password,
         mfa_method=options.mfa_method,
@@ -1439,99 +1435,117 @@ def main():
     if options.transactions or options.extended_transactions:
         if options.filename is None:
             print(data.to_json(orient='records'))
-            
+
         elif options.filename.endswith('.csv'):
             data.to_csv(options.filename, index=False)
         elif options.filename.endswith('.json'):
             data.to_json(options.filename, orient='records')
         else:
             raise ValueError('file extension must be either .csv or .json')
+    elif options.filename is None:
+        total_credit = []
+        total_cash_sum = []
+        account_total = []
+
+        while True:
+            total_cash = []
+            total_investment = []
+            total = []
+            composite = []
+            # while True:
+            # all_accounts = mint.get_accounts()
+            all_accounts = data
+            print("Fetching account data...")
+
+
+
+            class Finance:
+                
+                def __init__(self, yes):                
+                    self.yes = yes
+
+                def calculate(self, name, account_type):
+                    for account in all_accounts:
+                        if account['name'] in self:
+                            account_total.append(float(account[account_type]))
+                            composite.append(float(account[account_type]))
+
+                    acc_balance = "{:,}".format(sum(account_total).__round__(2))
+                    account_total.clear()
+                    total_sum = {name: acc_balance}
+                    print(total_sum)
+                    total.append(total_cash_sum)
+                    return acc_balance                    
+
+                def get_bills():
+                    bills = mint.get_bills()
+                    total_due = []
+                    for x in bills:
+                        try:
+                            total_due.append((float(x['aggregationDueAmount'])*-1))        
+                        except:
+                            pass
+                    composite.append(float(sum(total_due)).__round__(2))                        
+                    total_bills = str(sum(total_due).__round__(2))
+                    aggregate = "{:,}".format(sum(composite).__round__(2))                              
+                    return total_bills, aggregate
+
+                def send_text():
+                    account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
+                    client = Client(account_sid, '0208d1dc3fa6a4dadb5cdd40472e7111')
+                    investment = Finance.calculate(investment_accounts, "cash",'currentBalance')
+                    cash = Finance.calculate(cash_accounts, "cash",'value')
+                    credit = Finance.calculate(credit_accounts, "credit", 'value')
+                    total_bills, aggregate = Finance.get_bills()
+
+
+                    message = client.messages.create(
+                        body=(
+                            (
+                                (
+                                    (
+                                        (
+                                            (
+                                                (
+                                                    (
+                                                        f"Cash = ${cash}"
+                                                        + "\nCredit Cards = $"
+                                                    )
+                                                    + credit
+                                                )
+                                                + "\nBills = $"
+                                            )
+                                            + total_bills
+                                        )
+                                        + "\nInvestments = $"
+                                    )
+                                    + investment
+                                )
+                                + "\nTotal = $"
+                            )
+                            + aggregate
+                        ),
+                        from_='+13852336341',
+                        to='+18016237631',
+                    )
+
+                    return aggregate
+
+
+            print("$",Finance.send_text())
+            print("Sleeping...")
+            total_cash.clear()
+            total_investment.clear()
+            total.clear()
+            composite.clear()
+            time.sleep(300)
+
+
+    elif options.filename.endswith('.json'):
+        with open(options.filename, 'w+') as f:
+            json.dump(data, f, indent=2)
     else:
-        if options.filename is None:
-            while True:
-                total_cash = []
-                total_credit = []
-                total_investment = []
-                total = []
-                composite = []
-                total_cash_sum = []
-                account_total = []
-                
-                # while True:
-                # all_accounts = mint.get_accounts()
-                all_accounts = data
-                print("Fetching account data...")
-
-                class Finance():
-                
-                    def __init__(self, yes):                
-                        self.yes = yes
-
-                    def calculate(account_detail,name,account_type):
-                        for account in all_accounts:
-                            if account['name'] in account_detail:
-                                account_total.append(float(account[account_type]))
-                                composite.append(float(account[account_type]))
-
-                        acc_balance = "{:,}".format(sum(account_total).__round__(2))
-                        account_total.clear()
-                        total_sum = {name: acc_balance}
-                        print(total_sum)
-                        total.append(total_cash_sum)
-                        return acc_balance                    
-
-                    def get_bills():
-                        bills = mint.get_bills()
-                        total_due = []
-                        for x in bills:
-                            try:
-                                total_due.append((float(x['aggregationDueAmount'])*-1))        
-                            except:
-                                pass
-                        composite.append(float(sum(total_due)).__round__(2))                        
-                        total_bills = str(sum(total_due).__round__(2))
-                        aggregate = "{:,}".format(sum(composite).__round__(2))                              
-                        return total_bills, aggregate
-
-                    def send_text():
-                        account_sid = 'AC4edaa4f9768eb268b7907e9c2680d55d'
-                        auth_token = '0208d1dc3fa6a4dadb5cdd40472e7111'
-                        client = Client(account_sid, auth_token)
-                        investment = Finance.calculate(investment_accounts, "cash",'currentBalance')
-                        cash = Finance.calculate(cash_accounts, "cash",'value')
-                        credit = Finance.calculate(credit_accounts, "credit", 'value')
-                        total_bills, aggregate = Finance.get_bills()
-                        
-
-                        message = client.messages.create(
-                            body=
-                            "Cash = $" + cash +
-                            "\nCredit Cards = $" + credit +
-                            "\nBills = $" + total_bills +
-                            "\nInvestments = $" + investment +
-                            "\nTotal = $" + aggregate,
-                            from_='+13852336341',
-                            to='+18016237631'
-                        )                        
-                        return aggregate
-
-                print("$",Finance.send_text())
-                print("Sleeping...")
-                total_cash.clear()
-                total_investment.clear()
-                total.clear()
-                composite.clear()
-                time.sleep(300)
-
-            
-        # print(json.dumps(data[0]['currentBalance']))
-        
-        
-        elif options.filename.endswith('.json'):
-            with open(options.filename, 'w+') as f:
-                json.dump(data, f, indent=2)
-        else:
-            raise ValueError('file type must be json for non-transaction data')
+        raise ValueError('file type must be json for non-transaction data')
 
     if options.attention:
         attention_msg = mint.get_attention()
@@ -1539,7 +1553,7 @@ def main():
             attention_msg = "no messages"
         if options.filename is None: 
             print(attention_msg)
-            
+
         else:
             with open(options.filename, 'w+') as f:
                 f.write(attention_msg)
